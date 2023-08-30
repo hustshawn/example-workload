@@ -1,0 +1,51 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: cluster-spot-demo
+  region: ap-southeast-1
+  version: "1.27"
+
+iam:
+  withOIDC: true
+
+vpc:
+  clusterEndpoints:
+    publicAccess: true
+    privateAccess: true
+
+addons:
+- name: vpc-cni
+  version: latest
+- name: coredns
+  version: latest
+- name: kube-proxy
+  version: latest
+- name: aws-ebs-csi-driver
+  version: latest
+  wellKnownPolicies:      # add IAM and service account
+    ebsCSIController: true
+
+managedNodeGroups:
+- name: spot-demo-br
+  amiFamily: Bottlerocket
+  labels: 
+    bottlerocket.aws/updater-interface-version: 2.0.0
+  # instanceTypes: ["c5.large","c5d.large","c5n.large","c5a.large"]
+  privateNetworking: true
+  # maxPodsPerNode: 50
+  desiredCapacity: 2
+  volumeType: gp3
+  # volumeSize: 80
+  spot: true
+  instanceSelector:
+    vCPUs: 2
+    memory: 8GiB
+    # cpuArchitecture: x86_64
+  iam:
+    attachPolicyARNs:
+      - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+      - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+      - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+      - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy

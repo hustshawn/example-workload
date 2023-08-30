@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: redis-mss
+  namespace: argocd
+spec:
+  destination:
+    name: in-cluster
+    namespace: redis
+  project: default
+  source:
+    chart: redis
+    repoURL: registry-1.docker.io/bitnamicharts
+    targetRevision: 17.11.7
+    helm:
+      parameters:
+        - name: replica.replicaCount
+          value: '5'
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true

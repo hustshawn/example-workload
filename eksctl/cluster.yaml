@@ -1,0 +1,41 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: my-cluster
+  region: your-region
+  version: "1.27"
+
+iam:
+  withOIDC: true
+
+vpc:
+  cidr: 10.10.0.0/16
+  clusterEndpoints:
+    publicAccess: true
+    privateAccess: true
+
+addons:
+- name: vpc-cni
+  version: latest
+- name: coredns
+  version: latest
+- name: kube-proxy
+  version: latest
+- name: aws-ebs-csi-driver
+  version: latest
+  wellKnownPolicies:      # add IAM and service account
+    ebsCSIController: true
+
+managedNodeGroups:
+- name: mng-1
+  privateNetworking: true
+  desiredCapacity: 3
+  volumeSize: 80
+  iam:
+    attachPolicyARNs:
+      - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+      - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+      - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+      - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy

@@ -1,0 +1,37 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: fargate-only-cluster
+  region: ap-southeast-1
+  version: "1.24"
+
+iam:
+  withOIDC: true
+
+fargateProfiles:
+  - name: fp-default
+    selectors:
+      # All workloads in the "default" Kubernetes namespace will be
+      # scheduled onto Fargate:
+      - namespace: default
+      # All workloads in the "kube-system" Kubernetes namespace will be
+      # scheduled onto Fargate:
+      - namespace: kube-system
+  - name: fp-dev
+    selectors:
+      # All workloads in the "dev" Kubernetes namespace matching the following
+      # label selectors will be scheduled onto Fargate:
+      - namespace: dev
+        labels:
+          env: dev
+          checks: passed
+  - name: cert-manager
+    selectors:
+      - namespace: cert-manager
+  - name: fargate-container-insights
+    selectors:
+      - namespace: fargate-container-insights
+  - name: applications
+    selectors:
+      - namespace: golang

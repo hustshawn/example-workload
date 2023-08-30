@@ -1,0 +1,47 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: ipv6-cluster
+  region: ap-southeast-1
+  version: "1.24"
+
+kubernetesNetworkConfig:
+  ipFamily: IPv6
+
+iam:
+  withOIDC: true
+
+vpc:
+  clusterEndpoints:
+    publicAccess: true
+    privateAccess: true
+
+addons:
+- name: vpc-cni
+  version: latest
+- name: coredns
+  version: latest
+- name: kube-proxy
+  version: latest
+- name: aws-ebs-csi-driver
+  wellKnownPolicies:      # add IAM and service account
+    ebsCSIController: true
+
+managedNodeGroups:
+- name: spot
+  instanceTypes: ["c5.large","c5d.large","c5n.large","c5a.large"]
+  maxPodsPerNode: 50
+  desiredCapacity: 2
+  volumeType: gp3
+  volumeSize: 80
+  spot: true
+- name: spot-2
+  instanceTypes: ["c5.large","c5d.large","c5n.large","c5a.large"]
+  privateNetworking: true
+  maxPodsPerNode: 50
+  desiredCapacity: 1
+  volumeType: gp3
+  volumeSize: 80
+  spot: true
+

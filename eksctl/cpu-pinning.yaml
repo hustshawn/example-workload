@@ -1,0 +1,57 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: cpu-pinning-demo
+  region: ap-southeast-1
+  version: "1.22"
+
+iam:
+  withOIDC: true
+
+vpc:
+  clusterEndpoints:
+    publicAccess: true
+    privateAccess: true
+
+addons:
+- name: vpc-cni
+  version: latest
+- name: coredns
+  version: latest
+- name: kube-proxy
+  version: latest
+
+nodeGroups:
+- name: ng-04
+  desiredCapacity: 1
+  instanceType: c5.metal
+  ssh:
+    publicKeyName: shawn-ssh
+  kubeletExtraConfig:
+    ## Uncomment below unless you want to preserve the resources
+    # kubeReserved:
+    #   cpu: "10"
+    #   memory: "4000Mi"
+    cpuManagerPolicy: "static"
+
+managedNodeGroups:
+  - name: custom-mng
+    # Can find the AMI from 
+    # https://docs.aws.amazon.com/eks/latest/userguide/retrieve-ami-id.html
+    # or with aws-cli commond like
+    # aws ssm get-parameter --name /aws/service/eks/optimized-ami/1.22/amazon-linux-2/recommended/image_id --region Region --query "Parameter.Value" --output text
+    ami: ami-00647cc55e6c48fa9
+    amiFamily: AmazonLinux2
+    instanceType: c5.xlarge
+    desiredCapacity: 1
+    ssh:
+      allow: true
+      publicKeyName: shawn-ssh
+    volumeSize: 50
+    volumeType: gp3
+    spot: true
+    # remember to specify the cluster name within below script, eg. cpu-pinning-demo
+    overrideBootstrapCommand: |
+      #!/bin/bash
+      /etc/eks/bootstrap.sh cpu-pinning-demo --kubelet-extra-args '--cpu-manager-policy=static'

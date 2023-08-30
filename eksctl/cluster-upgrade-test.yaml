@@ -1,0 +1,45 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: test-cluster-upgrade
+  region: ap-southeast-1
+  version: "1.25"
+
+iam:
+  withOIDC: true
+
+vpc:
+  clusterEndpoints:
+    publicAccess: true
+    privateAccess: true
+
+addons:
+- name: vpc-cni
+  version: latest
+- name: coredns
+  version: latest
+- name: kube-proxy
+  version: latest
+- name: aws-ebs-csi-driver
+  version: v1.5.2-eksbuild.1
+  attachPolicyARNs:
+  - arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
+
+managedNodeGroups:
+# - name: spot
+#   instanceTypes: ["c5.large","c5d.large","c5n.large","c5a.large"]
+#   maxPodsPerNode: 50
+#   desiredCapacity: 2
+#   volumeType: gp3
+#   volumeSize: 80
+#   spot: true
+- name: spot-br
+  amiFamily: Bottlerocket
+  instanceTypes: ["c5.large","c5d.large","c5n.large","c5a.large"]
+  maxPodsPerNode: 50
+  desiredCapacity: 2
+  volumeType: gp3
+  volumeSize: 80
+  spot: true
+
