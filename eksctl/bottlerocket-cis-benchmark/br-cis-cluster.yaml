@@ -1,0 +1,86 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: br-cis-cluster
+  version: "1.25"
+  region: ap-southeast-1
+  tags:
+    karpenter.sh/discovery: br-cis-cluster # here, it is set to the cluster name
+
+iam:
+  withOIDC: true
+
+vpc:
+  clusterEndpoints:
+    publicAccess: true
+    privateAccess: true
+
+addons:
+- name: vpc-cni
+  version: latest
+  attachPolicyARNs: #optional
+  - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy 
+  configurationValues: |-
+    enableNetworkPolicy: "true"
+- name: coredns
+  version: latest
+- name: kube-proxy
+  version: latest
+- name: aws-ebs-csi-driver
+  wellKnownPolicies:      # add IAM and service account
+    ebsCSIController: true
+
+
+managedNodeGroups:
+- name: ng-bottlerocket
+  instanceTypes: ["c5.large","c5d.large","c5n.large","c5a.large"]
+  spot: true
+  desiredCapacity: 2
+  amiFamily: Bottlerocket
+  privateNetworking: true
+  disableIMDSv1: true
+  volumeType: gp3
+  iam:
+    attachPolicyARNs:
+    - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+    - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+    - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+    - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+    - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+  bottlerocket:
+      settings:
+        motd: "Hello from eksctl! - custom user data for Bottlerocket"
+        bootstrap-containers:
+          # 3.4
+          cis-bootstrap:
+            source: 985955614379.dkr.ecr.us-east-1.amazonaws.com/bottlerocket-cis-bootstrap-image:latest
+            mode: always
+        kernel:
+          # 1.5.2
+          lockdown: "integrity"
+          modules:
+            # 1.1.1.1
+            udf:
+              allowed: false
+            # 3.3.1
+            sctp:
+              allowed: false
+          sysctl:
+               # 3.1.1
+               "net.ipv4.conf.all.send_redirects": "0"
+               "net.ipv4.conf.default.send_redirects": "0"
+               
+               # 3.2.2
+               "net.ipv4.conf.all.accept_redirects": "0"
+               "net.ipv4.conf.default.accept_redirects": "0"
+               "net.ipv6.conf.all.accept_redirects": "0"
+               "net.ipv6.conf.default.accept_redirects": "0"
+               
+               # 3.2.3
+               "net.ipv4.conf.all.secure_redirects": "0"
+               "net.ipv4.conf.default.secure_redirects": "0"
+               
+               # 3.2.4
+               "net.ipv4.conf.all.log_martians": "1"
+               "net.ipv4.conf.default.log_martians": "1"

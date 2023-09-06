@@ -1,0 +1,87 @@
+---
+apiVersion: karpenter.k8s.aws/v1alpha1
+kind: AWSNodeTemplate
+metadata:
+  name: default
+spec:
+  amiFamily: Bottlerocket
+  blockDeviceMappings:
+  - deviceName: /dev/xvda
+    ebs:
+      encrypted: true
+      volumeSize: 4Gi
+      volumeType: gp3
+  - deviceName: /dev/xvdb
+    ebs:
+      encrypted: true
+      volumeSize: 80Gi
+      volumeType: gp3
+  instanceProfile: KarpenterNodeInstanceProfile
+  # You may replace below selectors according to your cluster configs
+  securityGroupSelector:
+    karpenter.sh/discovery: cluster-with-karpenter
+  subnetSelector:
+    karpenter.sh/discovery: cluster-with-karpenter
+  tags:
+    karpenter.sh/discovery: cluster-with-karpenter
+  # Please replace the bootstrap image with your own
+  userData:  |
+    [settings.bootstrap-containers.cis-bootstrap]
+    source = "985955614379.dkr.ecr.us-east-1.amazonaws.com/bottlerocket-cis-bootstrap-image:latest"
+    mode = "always"
+    [settings.kernel]
+    lockdown = "integrity"
+    [settings.kernel.modules.sctp]
+    allowed = false
+    [settings.kernel.modules.udf]
+    allowed = false
+    [settings.kernel.sysctl]
+    "net.ipv4.conf.all.send_redirects" = "0"
+    "net.ipv4.conf.default.send_redirects" = "0"
+    "net.ipv4.conf.all.accept_redirects" = "0"
+    "net.ipv4.conf.default.accept_redirects" = "0"
+    "net.ipv6.conf.all.accept_redirects" = "0"
+    "net.ipv6.conf.default.accept_redirects" = "0"
+    "net.ipv4.conf.all.secure_redirects" = "0"
+    "net.ipv4.conf.default.secure_redirects" = "0"
+    "net.ipv4.conf.all.log_martians" = "1"
+    "net.ipv4.conf.default.log_martians" = "1"
+
+---
+
+apiVersion: karpenter.sh/v1alpha5
+kind: Provisioner
+metadata:
+  name: default
+spec:
+  consolidation:
+    enabled: true
+  limits:
+    resources:
+      cpu: 1k
+  providerRef:
+    name: default
+  requirements:
+  - key: karpenter.k8s.aws/instance-category
+    operator: In
+    values:
+    - c
+    - m
+  - key: karpenter.sh/capacity-type
+    operator: In
+    values:
+    - spot
+    - on-demand
+  - key: karpenter.k8s.aws/instance-hypervisor
+    operator: In
+    values:
+    - nitro
+  - key: kubernetes.io/arch
+    operator: In
+    values:
+    - amd64
+  - key: kubernetes.io/os
+    operator: In
+    values:
+    - linux
+

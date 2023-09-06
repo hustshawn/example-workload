@@ -1,0 +1,30 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: eks-cis-benchmark
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: eks-cis-benchmark  
+    spec:
+      hostNetwork: true
+      # nodeSelector:
+      #    eks.amazonaws.com/nodegroup: bottlerocket-mng     
+      containers:
+        - name: eks-cis-benchmark
+          image: 985955614379.dkr.ecr.us-east-1.amazonaws.com/bottlerocket-cis-validation-image:latest
+          imagePullPolicy: Always
+          securityContext:
+            capabilities:
+              add: ["SYS_ADMIN", "NET_ADMIN", "CAP_SYS_ADMIN"]
+          volumeMounts:
+          - mountPath: /.bottlerocket/rootfs
+            name: btl-root
+      volumes:
+      - name: btl-root
+        hostPath:
+          path: /
+      restartPolicy: Never
