@@ -4,7 +4,7 @@ kind: ClusterConfig
 metadata:
   name: cluster-1-27
   region: ap-southeast-1
-  version: "1.24"
+  version: "1.27"
 
 iam:
   withOIDC: true
@@ -22,7 +22,7 @@ addons:
 - name: kube-proxy
   version: latest
 - name: aws-ebs-csi-driver
-  wellKnownPolicies:      # add IAM and service account
+  wellKnownPolicies: # add IAM and service account
     ebsCSIController: true
 
 managedNodeGroups:
@@ -36,8 +36,8 @@ managedNodeGroups:
 #   spot: true
 - name: spot-br
   amiFamily: Bottlerocket
-  labels: { bottlerocket.aws/updater-interface-version: 2.0.0 }
-  instanceTypes: ["c5.large","c5d.large","c5n.large","c5a.large"]
+  labels: {bottlerocket.aws/updater-interface-version: 2.0.0}
+  instanceTypes: ["c5.large", "c5d.large", "c5n.large", "c5a.large"]
   privateNetworking: true
   maxPodsPerNode: 50
   desiredCapacity: 2

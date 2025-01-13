@@ -1,0 +1,53 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: cluster-1-30
+  region: ap-southeast-1
+  version: "1.30"
+
+iam:
+  withOIDC: true
+
+vpc:
+  clusterEndpoints:
+    publicAccess: true
+    privateAccess: true
+
+addons:
+- name: vpc-cni
+  version: latest
+- name: coredns
+  version: latest
+- name: kube-proxy
+  version: latest
+- name: aws-ebs-csi-driver
+  version: latest
+  # Optionally if using managed policy
+  attachPolicyArns:
+  - arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
+  # wellKnownPolicies:
+  #   # add IAM and service account
+  #   ebsCSIController: true
+
+managedNodeGroups:
+- name: mng-1-30
+  instanceTypes: [ "c5.large", "c5d.large", "c5n.large", "c5a.large" ]
+  # Error: eksctl does not support configuring maxPodsPerNode EKS-managed nodes based on AmazonLinux2023
+  # maxPodsPerNode: 50
+  privateNetworking: true
+  desiredCapacity: 2
+  volumeType: gp3
+  volumeSize: 80
+  spot: true
+
+# - name: spot-br
+#   amiFamily: Bottlerocket
+#   labels: {bottlerocket.aws/updater-interface-version: 2.0.0}
+#   instanceTypes: ["c5.large", "c5d.large", "c5n.large", "c5a.large"]
+#   privateNetworking: true
+#   maxPodsPerNode: 50
+#   desiredCapacity: 1
+#   volumeType: gp3
+#   volumeSize: 80
+#   spot: true

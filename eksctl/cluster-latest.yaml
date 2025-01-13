@@ -4,7 +4,7 @@ kind: ClusterConfig
 metadata:
   name: cluster-latest
   region: ap-southeast-1
-  version: "1.27"
+  version: "1.28"
 
 iam:
   withOIDC: true
@@ -26,6 +26,11 @@ addons:
   wellKnownPolicies:      # add IAM and service account
     ebsCSIController: true
 
+# cloudWatch:
+#   clusterLogging:
+#     enableTypes: ["*"]
+#     logRetentionInDays: 1
+
 managedNodeGroups:
 - name: spot-br
   amiFamily: Bottlerocket
@@ -37,24 +42,6 @@ managedNodeGroups:
   desiredCapacity: 1
   volumeType: gp3
   volumeSize: 80
-  spot: true
-  iam:
-    attachPolicyARNs:
-      - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
-      - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
-      - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
-      - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
-      - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
-- name: spot-br3
-  amiFamily: Bottlerocket
-  labels: 
-    bottlerocket.aws/updater-interface-version: 2.0.0
-  instanceTypes: ["c5.large","c5d.large","c5n.large","c5a.large"]
-  privateNetworking: true
-  # maxPodsPerNode: 110
-  desiredCapacity: 1
-  # volumeType: gp3
-  # volumeSize: 80
   spot: true
   iam:
     attachPolicyARNs:

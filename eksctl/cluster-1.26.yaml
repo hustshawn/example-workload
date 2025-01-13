@@ -21,15 +21,15 @@ addons:
   version: latest
 - name: kube-proxy
   version: latest
-- name: aws-ebs-csi-driver
-  version: latest
-  wellKnownPolicies:      # add IAM and service account
-    ebsCSIController: true
+# - name: aws-ebs-csi-driver
+#   version: latest
+#   wellKnownPolicies:      # add IAM and service account
+#     ebsCSIController: true
 
 
 managedNodeGroups:
 - name: spot
-  instanceTypes: ["c5.large","c5d.large","c5n.large","c5a.large"]
+  instanceTypes: ["c5.large", "c5d.large", "c5n.large", "c5a.large"]
   privateNetworking: true
   maxPodsPerNode: 50
   desiredCapacity: 2

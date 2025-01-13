@@ -4,7 +4,7 @@ kind: ClusterConfig
 metadata:
   name: cluster-with-karpenter
   region: ap-southeast-1
-  version: '1.25'
+  version: '1.28'
   tags:
     karpenter.sh/discovery: cluster-with-karpenter # here, it is set to the cluster name
 iam:
@@ -27,44 +27,44 @@ addons:
 #   attachPolicyARNs:
 #   - arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
 managedNodeGroups:
-  - name: managed-ng-2
-    minSize: 1
-    maxSize: 2
-    instanceType: m5.large
-    desiredCapacity: 2
-    maxPodsPerNode: 80
-    volumeType: gp3
-    # spot: true
-  # - name: bottlerocket-mng
-  #   desiredCapacity: 1
-  #   instanceType: m5.large
-  #   amiFamily: Bottlerocket
-  #   iam:
-  #      attachPolicyARNs:
-  #         - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
-  #         - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
-  #         - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
-  #         - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
-  #   volumeType: gp3
-  # - name: managed-ng-2
-  #   minSize: 1
-  #   maxSize: 2
-  #   instanceType: m5.large
-  #   instanceTypes: ["c6g.large","c6gd.large","m6g.large","m6gd.large"]
-  #   desiredCapacity: 2
-  #   maxPodsPerNode: 50
-  #   volumeType: gp3
-  #   spot: true
+- name: managed-ng-1
+  minSize: 1
+  maxSize: 2
+  instanceType: m5.large
+  desiredCapacity: 2
+  maxPodsPerNode: 80
+  volumeType: gp3
+  spot: true
+# - name: bottlerocket-mng
+#   desiredCapacity: 1
+#   instanceType: m5.large
+#   amiFamily: Bottlerocket
+#   iam:
+#      attachPolicyARNs:
+#         - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+#         - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+#         - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+#         - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+#   volumeType: gp3
+# - name: managed-ng-2
+#   minSize: 1
+#   maxSize: 2
+#   instanceType: m5.large
+#   instanceTypes: ["c6g.large","c6gd.large","m6g.large","m6gd.large"]
+#   desiredCapacity: 2
+#   maxPodsPerNode: 50
+#   volumeType: gp3
+#   spot: true
 
-    # overrideBootstrapCommand: |
-    #   #!/bin/bash
-    #   /etc/eks/bootstrap.sh cluster-with-karpenter --use-max-pods false --kubelet-extra-args '--max-pods=80'
+# overrideBootstrapCommand: |
+#   #!/bin/bash
+#   /etc/eks/bootstrap.sh cluster-with-karpenter --use-max-pods false --kubelet-extra-args '--max-pods=80'
 fargateProfiles:
-  - name: fp-dev
-    selectors:
-      # All workloads in the "dev" Kubernetes namespace matching the following
-      # label selectors will be scheduled onto Fargate:
-      - namespace: dev
-        # labels:
-        #   env: dev
-        #   checks: passed
+- name: fp-dev
+  selectors:
+  # All workloads in the "dev" Kubernetes namespace matching the following
+  # label selectors will be scheduled onto Fargate:
+  - namespace: dev
+    # labels:
+    #   env: dev
+    #   checks: passed
