@@ -2,9 +2,9 @@ apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 
 metadata:
-  name: cluster-1-30
+  name: cluster-1-31
   region: ap-southeast-1
-  version: "1.30"
+  version: "1.31"
 
 iam:
   withOIDC: true
@@ -31,7 +31,7 @@ addons:
   #   ebsCSIController: true
 
 managedNodeGroups:
-- name: mng-1-30
+- name: mng-1-31
   instanceTypes: [ "c5.large", "c5d.large", "c5n.large", "c5a.large" ]
   # Error: eksctl does not support configuring maxPodsPerNode EKS-managed nodes based on AmazonLinux2023
   # maxPodsPerNode: 50
